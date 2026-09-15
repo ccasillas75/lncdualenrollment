@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LNC Dual Enrollment Portal</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        lncBlue: '#0f172a', // Deep slate/blue
+                        accent: '#2563eb',  // Bright blue for highlights
+                        cpccGold: '#fbbf24', 
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .page-section { display: none; animation: fadeIn 0.4s ease-out; }
+        .page-section.active { display: block; }
+        .nav-link.active { background-color: #eff6ff; color: #2563eb; font-weight: 600; }
+        .nav-link.active i { color: #2563eb; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex overflow-hidden">
+
+    <!-- ========================================== -->
+    <!-- SIDEBAR NAVIGATION                         -->
+    <!-- ========================================== -->
+    <aside class="w-72 bg-white border-r border-slate-200 flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-20 flex-shrink-0 hidden md:flex">
+        
+        <!-- Sidebar Header -->
+        <div class="p-6 border-b border-slate-100 flex items-center gap-4 bg-gradient-to-br from-slate-50 to-white">
+            <div class="w-12 h-12 bg-lncBlue rounded-xl flex items-center justify-center text-white shadow-md shadow-lncBlue/20 shrink-0">
+                <i class="fa-solid fa-graduation-cap text-xl"></i>
+            </div>
+            <div>
+                <h2 class="font-black text-slate-800 leading-tight text-lg tracking-tight">LNC Dual<br><span class="text-accent">Enrollment</span></h2>
+            </div>
+        </div>
+
+        <!-- Sidebar Links -->
+        <div class="flex-1 overflow-y-auto py-6 px-4 space-y-8 bg-white/50">
+            
+            <!-- Category: Start Here -->
+            <div>
+                <h3 class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center"><i class="fa-solid fa-play text-[10px] mr-2 text-accent"></i> Start Here</h3>
+                <nav class="space-y-1">
+                    <a href="#overview" class="nav-link active flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="overview">
+                        <i class="fa-solid fa-house w-6 text-center text-slate-400 mr-2"></i> Overview
+                    </a>
+                    <a href="#cpcc-updates" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="cpcc-updates">
+                        <i class="fa-solid fa-bullhorn w-6 text-center text-slate-400 mr-2"></i> CPCC Updates
+                    </a>
+                    <a href="#parents" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="parents">
+                        <i class="fa-solid fa-users w-6 text-center text-slate-400 mr-2"></i> Parent Information
+                    </a>
+                    <a href="https://catalog.cpcc.edu/about-central-piedmont/academic-calendar/" target="_blank" class="flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-slate-100 transition-colors duration-200">
+                        <i class="fa-regular fa-calendar-days w-6 text-center text-slate-400 mr-2 transition-colors duration-200"></i> Academic Calendar <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-auto opacity-50"></i>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Category: Enrollment -->
+            <div>
+                <h3 class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center"><i class="fa-solid fa-pen-to-square text-[10px] mr-2 text-accent"></i> Enrollment</h3>
+                <nav class="space-y-1">
+                    <a href="#policy" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="policy">
+                        <i class="fa-solid fa-file-contract w-6 text-center text-slate-400 mr-2"></i> LNC Policy
+                    </a>
+                    <a href="#checklist-new" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="checklist-new">
+                        <i class="fa-solid fa-list-check w-6 text-center text-slate-400 mr-2"></i> New Student Checklist
+                    </a>
+                    <a href="#checklist-returning" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="checklist-returning">
+                        <i class="fa-solid fa-rotate-left w-6 text-center text-slate-400 mr-2"></i> Returning Student
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Category: Academics -->
+            <div>
+                <h3 class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center"><i class="fa-solid fa-book-open text-[10px] mr-2 text-accent"></i> Academics</h3>
+                <nav class="space-y-1">
+                    <a href="#pathways" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="pathways">
+                        <i class="fa-solid fa-route w-6 text-center text-slate-400 mr-2"></i> Pathways
+                    </a>
+                    <a href="#college-credit" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="college-credit">
+                        <i class="fa-solid fa-graduation-cap w-6 text-center text-slate-400 mr-2"></i> College Credit Options
+                    </a>
+                    <a href="#transfer-courses" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="transfer-courses">
+                        <i class="fa-solid fa-share-nodes w-6 text-center text-slate-400 mr-2"></i> Transfer Courses
+                    </a>
+                    <a href="#benchmarks" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="benchmarks">
+                        <i class="fa-solid fa-chart-line w-6 text-center text-slate-400 mr-2"></i> Proficiency & Math
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Category: Logistics & Help -->
+            <div>
+                <h3 class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center"><i class="fa-solid fa-circle-info text-[10px] mr-2 text-accent"></i> Logistics & Help</h3>
+                <nav class="space-y-1">
+                    <a href="#finances" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="finances">
+                        <i class="fa-solid fa-piggy-bank w-6 text-center text-slate-400 mr-2"></i> Finances
+                    </a>
+                    <a href="#schedules" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="schedules">
+                        <i class="fa-solid fa-clock w-6 text-center text-slate-400 mr-2"></i> Schedule Examples
+                    </a>
+                    <a href="#help" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg transition-colors" data-target="help">
+                        <i class="fa-solid fa-circle-question w-6 text-center text-slate-400 mr-2"></i> Help & IT
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT AREA                          -->
+    <!-- ========================================== -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+        
+        <!-- Mobile Header (Visible only on small screens) -->
+        <div class="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between z-20 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-lncBlue rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-solid fa-graduation-cap text-sm"></i>
+                </div>
+                <h2 class="font-black text-slate-800 text-sm tracking-tight">LNC Dual Enrollment</h2>
+            </div>
+            <button id="mobile-menu-btn" class="text-slate-500 hover:text-slate-800 focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Scrollable Content Container -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-12 scroll-smooth">
+            <div class="max-w-5xl mx-auto pb-20">
+
+                <!-- ========================================== -->
+                <!-- PAGE: OVERVIEW                             -->
+                <!-- ========================================== -->
+                <section id="overview" class="page-section active">
+                    <div class="space-y-8">
+                        <!-- Welcome Header -->
+                        <div class="bg-gradient-to-r from-lncBlue to-blue-800 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+                            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">LNC Dual Enrollment Portal</h1>
+                            <p class="text-blue-100 text-base sm:text-lg max-w-2xl leading-relaxed">
+                                Welcome to your central hub for Central Piedmont Community College (CPCC) Career & College Promise (CCP) information, guidelines, and enrollment checklists.
+                            </p>
+                        </div>
+
+                        <!-- Program Booklets & Guides -->
+                        <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
+                            <h3 class="text-2xl font-extrabold text-lncBlue mb-2 flex items-center gap-3">
+                                <i class="fa-solid fa-book-bookmark text-accent"></i> Program Booklets & Guides
+                            </h3>
+                            <p class="text-slate-500 mb-6 font-medium">Access official guides and application documentation below.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Application Process Guide -->
+                                <a href="https://canva.link/dudqahmvrqnr91w" target="_blank" rel="noopener noreferrer" class="group flex items-start p-6 bg-slate-50 hover:bg-blue-50/60 border-2 border-slate-100 hover:border-accent rounded-2xl transition-all duration-200 shadow-sm hover:shadow-md">
+                                    <div class="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-xl shrink-0 mr-4 group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-file-pdf"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <h4 class="font-bold text-slate-800 group-hover:text-accent transition-colors text-lg">Application Process Guide</h4>
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 group-hover:text-accent transition-colors"></i>
+                                        </div>
+                                        <p class="text-slate-600 text-sm leading-relaxed">Step-by-step instructions for completing your CPCC dual enrollment application.</p>
+                                    </div>
+                                </a>
+
+                                <!-- CCP Dual Informational Booklet -->
+                                <a href="https://canva.link/bt6u3fjlx95cad3" target="_blank" rel="noopener noreferrer" class="group flex items-start p-6 bg-slate-50 hover:bg-blue-50/60 border-2 border-slate-100 hover:border-accent rounded-2xl transition-all duration-200 shadow-sm hover:shadow-md">
+                                    <div class="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center text-xl shrink-0 mr-4 group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-book-open"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <h4 class="font-bold text-slate-800 group-hover:text-accent transition-colors text-lg">CCP Dual Informational Booklet</h4>
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 group-hover:text-accent transition-colors"></i>
+                                        </div>
+                                        <p class="text-slate-600 text-sm leading-relaxed">Comprehensive overview of pathways, policies, and requirements for high school students.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: CPCC UPDATES                         -->
+                <!-- ========================================== -->
+                <section id="cpcc-updates" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                            <div class="w-14 h-14 bg-blue-50 text-accent rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-blue-100">
+                                <i class="fa-solid fa-bullhorn animate-pulse"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-lncBlue to-accent tracking-tight">CPCC Updates</h2>
+                                <p class="text-slate-500 font-medium mt-1">Latest announcements and deadlines.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-8 relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 w-64 h-full bg-gradient-to-l from-white/40 to-transparent"></div>
+                            <div class="flex items-start gap-6 flex-col sm:flex-row relative z-10">
+                                <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0 border border-blue-100 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fa-solid fa-clock-rotate-left text-3xl text-accent"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-lncBlue mb-3">Live CPCC Updates Document</h3>
+                                    <p class="text-slate-600 mb-6 text-lg max-w-2xl">Please refer to this running link for continual updates. This document is updated regularly with important information for everyone to see.</p>
+                                    <a href="https://docs.google.com/document/d/1Kuqu8YS0dMPVVE_n6wtzOF9F7yqLoUNaSh1mJvoYR7I/edit?usp=sharing" target="_blank" class="inline-flex items-center gap-3 bg-accent hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                        View Continual Updates <i class="fa-solid fa-arrow-up-right-from-square text-sm opacity-80"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: PARENT INFORMATION                 -->
+                <!-- ========================================== -->
+                <section id="parents" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                            <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-indigo-100">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Parent Information</h2>
+                                <p class="text-slate-500 font-medium mt-1">Important details for parents of dual enrollment students.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">FERPA & Student Privacy</h3>
+                            <p class="text-slate-600 mb-4">Because your student is enrolling in college courses, college privacy laws (FERPA) apply. College instructors will communicate <strong>only</strong> with the student, not the parents.</p>
+                            <p class="text-slate-600">We encourage parents to support their students, but students must take ownership of their communication, scheduling, and coursework.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: LNC POLICY                           -->
+                <!-- ========================================== -->
+                <section id="policy" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                        <div class="bg-red-600 px-8 py-10 text-white flex flex-col md:flex-row items-center justify-center md:justify-start gap-6 border-b-[6px] border-red-800 relative overflow-hidden">
+                            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-red-700/50 rounded-full blur-3xl"></div>
+                            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shrink-0 border border-white/30 relative z-10 shadow-inner">
+                                <i class="fa-solid fa-scale-balanced text-4xl animate-pulse-slow"></i>
+                            </div>
+                            <div class="text-center md:text-left relative z-10">
+                                <span class="inline-block px-3 py-1 bg-red-900/40 rounded-full text-xs font-bold uppercase tracking-widest mb-2 border border-red-400/30">Extremely Important</span>
+                                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">LNC Dual Enrollment Policy</h2>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8 md:p-12 bg-white">
+                            <p class="text-lg md:text-xl text-slate-700 font-medium mb-10 pb-6 border-b border-slate-100 leading-relaxed max-w-3xl">
+                                This policy ensures that students understand the commitment required when enrolling in college-level coursework. It maintains the integrity of high school and college transcripts, prevents gaps in course schedules, and reinforces the expectation that all students are capable of meeting the academic challenges presented.
+                            </p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                                <!-- Rule 1 -->
+                                <div class="bg-slate-50 rounded-3xl p-8 border-2 border-slate-100 hover:border-lncBlue transition-colors group">
+                                    <div class="w-14 h-14 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-file-contract text-2xl text-lncBlue"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-extrabold text-lncBlue mb-4">Transcripts & Dropped Courses</h3>
+                                    <ul class="space-y-4 text-sm text-slate-600 leading-relaxed">
+                                        <li class="flex items-start"><i class="fa-solid fa-caret-right text-accent mt-1 mr-3"></i> Any CPCC course a student registers for will be placed on <strong>both</strong> the LNC and college transcripts.</li>
+                                        <li class="flex items-start"><i class="fa-solid fa-caret-right text-accent mt-1 mr-3"></i> Any student who withdraws from a CPCC course or is dropped for any reason <strong>without replacing it with a new course in the same semester</strong> will receive an <span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded border border-red-200 mx-1">"F"</span> on their high school transcript.</li>
+                                        <li class="flex items-start"><i class="fa-solid fa-caret-right text-accent mt-1 mr-3"></i> Courses may not be dropped due to difficulty, as all courses offered are college-level and inherently rigorous. Students are expected to remain enrolled for the duration.</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="space-y-8">
+                                    <!-- Rule 2 -->
+                                    <div class="bg-slate-50 rounded-3xl p-6 border-2 border-slate-100 hover:border-lncBlue transition-colors group">
+                                        <div class="flex items-center gap-4 mb-3">
+                                            <div class="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
+                                                <i class="fa-solid fa-layer-group text-xl text-lncBlue"></i>
+                                            </div>
+                                            <h3 class="text-xl font-extrabold text-lncBlue">Course Load Requirements</h3>
+                                        </div>
+                                        <p class="text-sm text-slate-600 leading-relaxed">Students must register for at least half or more of their total CPCC courses in the first semester and may complete the remaining courses in the second semester.</p>
+                                    </div>
+
+                                    <!-- Rule 3 -->
+                                    <div class="bg-slate-50 rounded-3xl p-6 border-2 border-slate-100 hover:border-lncBlue transition-colors group">
+                                        <div class="flex items-center gap-4 mb-3">
+                                            <div class="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center shrink-0 group-hover:-rotate-12 transition-transform">
+                                                <i class="fa-solid fa-clipboard-user text-xl text-lncBlue"></i>
+                                            </div>
+                                            <h3 class="text-xl font-extrabold text-lncBlue">Check-Ins & Drop Protocol</h3>
+                                        </div>
+                                        <ul class="space-y-2 text-sm text-slate-600 leading-relaxed">
+                                            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-3 text-xs"></i> Require quarterly check-ins and progress updates to monitor progress.</li>
+                                            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-3 text-xs"></i> <strong>Must</strong> fill out a change request form and meet with HS Counselor <strong>before</strong> dropping any courses.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Exceptions -->
+                            <div class="bg-gradient-to-r from-blue-50 to-white p-8 rounded-2xl border-l-4 border-l-lncBlue border-y border-r border-blue-100 shadow-sm">
+                                <h3 class="text-xl font-extrabold text-lncBlue mb-3 flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-lncBlue shadow-sm"><i class="fa-solid fa-notes-medical"></i></div> Exceptions
+                                </h3>
+                                <p class="text-slate-700 text-sm leading-relaxed max-w-4xl">
+                                    A medical or compassionate withdrawal approved by CPCC is the only exception. You must notify your counselor before the class ends. The appeal must be completed and approved before the end of the grading period, or your "W" will remain an "F" on LNC’s transcript. Once documentation is provided from CPCC, your LNC transcript will be updated.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: ENROLLMENT CHECKLIST (NEW)           -->
+                <!-- ========================================== -->
+                <section id="checklist-new" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-50 p-8 border-b border-slate-200">
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight mb-2">New Student Checklist</h2>
+                            <p class="text-slate-500 font-medium">Follow these steps carefully to ensure a smooth enrollment process.</p>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="space-y-4">
+                                <!-- Item 1 -->
+                                <label class="group flex items-start p-5 bg-white border-2 border-slate-100 rounded-xl cursor-pointer hover:border-accent hover:shadow-sm transition-all duration-200 relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent transform scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></div>
+                                    <input type="checkbox" class="peer mt-1 w-6 h-6 text-accent rounded-md border-slate-300 focus:ring-accent cursor-pointer bg-slate-50">
+                                    <div class="ml-4 flex-1">
+                                        <span class="block text-lg font-bold text-slate-800 mb-1 transition-colors peer-checked:text-slate-400 peer-checked:line-through">1. Apply to CPCC</span>
+                                        <span class="block text-slate-600 text-sm peer-checked:opacity-50 transition-opacity">Submit your official application for the Career and College Promise (CCP) program via CFNC.</span>
+                                    </div>
+                                </label>
+                                
+                                <!-- Item 2 -->
+                                <label class="group flex items-start p-5 bg-white border-2 border-slate-100 rounded-xl cursor-pointer hover:border-accent hover:shadow-sm transition-all duration-200 relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent transform scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></div>
+                                    <input type="checkbox" class="peer mt-1 w-6 h-6 text-accent rounded-md border-slate-300 focus:ring-accent cursor-pointer bg-slate-50">
+                                    <div class="ml-4 flex-1">
+                                        <span class="block text-lg font-bold text-slate-800 mb-1 transition-colors peer-checked:text-slate-400 peer-checked:line-through">2. Set Up Your CPCC Account</span>
+                                        <span class="block text-slate-600 text-sm peer-checked:opacity-50 transition-opacity">Once accepted, activate your student login, email, and set up your multi-factor authentication.</span>
+                                    </div>
+                                </label>
+                                
+                                <!-- Item 3 -->
+                                <label class="group flex items-start p-5 bg-white border-2 border-slate-100 rounded-xl cursor-pointer hover:border-accent hover:shadow-sm transition-all duration-200 relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent transform scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></div>
+                                    <input type="checkbox" class="peer mt-1 w-6 h-6 text-accent rounded-md border-slate-300 focus:ring-accent cursor-pointer bg-slate-50">
+                                    <div class="ml-4 flex-1">
+                                        <span class="block text-lg font-bold text-slate-800 mb-1 transition-colors peer-checked:text-slate-400 peer-checked:line-through">3. Meet with High School Counselor</span>
+                                        <span class="block text-slate-600 text-sm peer-checked:opacity-50 transition-opacity">Discuss your pathway, select appropriate courses, and ensure they align with your high school graduation requirements.</span>
+                                    </div>
+                                </label>
+
+                                <!-- Item 4 -->
+                                <label class="group flex items-start p-5 bg-white border-2 border-slate-100 rounded-xl cursor-pointer hover:border-accent hover:shadow-sm transition-all duration-200 relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent transform scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></div>
+                                    <input type="checkbox" class="peer mt-1 w-6 h-6 text-accent rounded-md border-slate-300 focus:ring-accent cursor-pointer bg-slate-50">
+                                    <div class="ml-4 flex-1">
+                                        <span class="block text-lg font-bold text-slate-800 mb-1 transition-colors peer-checked:text-slate-400 peer-checked:line-through">4. Register for Classes</span>
+                                        <span class="block text-slate-600 text-sm peer-checked:opacity-50 transition-opacity">Use MyCollege to enroll in the courses approved by your counselor during the registration window.</span>
+                                    </div>
+                                </label>
+
+                                <!-- Item 5 -->
+                                <label class="group flex items-start p-5 bg-white border-2 border-slate-100 rounded-xl cursor-pointer hover:border-accent hover:shadow-sm transition-all duration-200 relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent transform scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></div>
+                                    <input type="checkbox" class="peer mt-1 w-6 h-6 text-accent rounded-md border-slate-300 focus:ring-accent cursor-pointer bg-slate-50">
+                                    <div class="ml-4 flex-1">
+                                        <span class="block text-lg font-bold text-slate-800 mb-1 transition-colors peer-checked:text-slate-400 peer-checked:line-through">5. Pay Your Bill</span>
+                                        <span class="block text-slate-600 text-sm peer-checked:opacity-50 transition-opacity">Ensure your student fees and material costs are paid according to CPCC's payment schedule (Tuition is waived, but fees apply).</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: RETURNING STUDENT CHECKLIST          -->
+                <!-- ========================================== -->
+                <section id="checklist-returning" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-50 p-8 border-b border-slate-200">
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight mb-2">Returning Student Checklist</h2>
+                            <p class="text-slate-500 font-medium">Steps required for students continuing their dual enrollment journey.</p>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="space-y-4">
+                                <!-- Item 1 -->
+                                <label class="group flex items-start p-5 bg-white border-2 border-slate-100 rounded-xl cursor-pointer hover:border-accent hover:shadow-sm transition-all duration-200 relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent transform scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></div>
+                                    <input type="checkbox" class="peer mt-1 w-6 h-6 text-accent rounded-md border-slate-300 focus:ring-accent cursor-pointer bg-slate-50">
+                                    <div class="ml-4 flex-1">
+                                        <span class="block text-lg font-bold text-slate-800 mb-1 transition-colors peer-checked:text-slate-400 peer-checked:line-through">1. Verify Account Standing</span>
+                                        <span class="block text-slate-600 text-sm peer-checked:opacity-50 transition-opacity">Check MyCollege to ensure you have no outstanding balances or holds on your account.</span>
+                                    </div>
+                                </label>
+                                
+                                <!-- Item 2 -->
+                                <label class="group flex items-start p-5 bg-white border-2 border-slate-100 rounded-xl cursor-pointer hover:border-accent hover:shadow-sm transition-all duration-200 relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent transform scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></div>
+                                    <input type="checkbox" class="peer mt-1 w-6 h-6 text-accent rounded-md border-slate-300 focus:ring-accent cursor-pointer bg-slate-50">
+                                    <div class="ml-4 flex-1">
+                                        <span class="block text-lg font-bold text-slate-800 mb-1 transition-colors peer-checked:text-slate-400 peer-checked:line-through">2. Submit Pathway Continuation/Change Form</span>
+                                        <span class="block text-slate-600 text-sm peer-checked:opacity-50 transition-opacity">Confirm your current pathway or submit a form if you intend to switch pathways.</span>
+                                    </div>
+                                </label>
+                                
+                                <!-- Item 3 -->
+                                <label class="group flex items-start p-5 bg-white border-2 border-slate-100 rounded-xl cursor-pointer hover:border-accent hover:shadow-sm transition-all duration-200 relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-accent transform scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></div>
+                                    <input type="checkbox" class="peer mt-1 w-6 h-6 text-accent rounded-md border-slate-300 focus:ring-accent cursor-pointer bg-slate-50">
+                                    <div class="ml-4 flex-1">
+                                        <span class="block text-lg font-bold text-slate-800 mb-1 transition-colors peer-checked:text-slate-400 peer-checked:line-through">3. Register & Pay Fees</span>
+                                        <span class="block text-slate-600 text-sm peer-checked:opacity-50 transition-opacity">Register for next semester's courses and pay the required fees by the deadline.</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: PATHWAYS                           -->
+                <!-- ========================================== -->
+                <section id="pathways" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                            <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-emerald-100">
+                                <i class="fa-solid fa-route"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Academic Pathways</h2>
+                                <p class="text-slate-500 font-medium mt-1">Choose between College Transfer and Career/Technical pathways.</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">
+                                <h3 class="text-xl font-bold text-slate-800 mb-2">College Transfer Pathways (CTP)</h3>
+                                <p class="text-slate-600 text-sm mb-4">Designed for students planning to attend a 4-year university after high school. These credits are designed to transfer to UNC System schools and many private colleges.</p>
+                                <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                    <li>Associate in Arts</li>
+                                    <li>Associate in Science</li>
+                                    <li>Associate in Engineering</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">
+                                <h3 class="text-xl font-bold text-slate-800 mb-2">Career & Technical Education (CTE)</h3>
+                                <p class="text-slate-600 text-sm mb-4">Designed for students looking to gain job-ready skills, certificates, or diplomas in a specific trade or technical field before graduating high school.</p>
+                                <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                    <li>Information Technology</li>
+                                    <li>Business Administration</li>
+                                    <li>Culinary Arts</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: COLLEGE CREDIT OPTIONS               -->
+                <!-- ========================================== -->
+                <section id="college-credit" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                            <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-purple-100">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">College Credit Options</h2>
+                                <p class="text-slate-500 font-medium mt-1">Understanding AP vs. CCP Dual Enrollment.</p>
+                            </div>
+                        </div>
+                        <p class="text-slate-700 mb-6">Students have multiple ways to earn college credit while at LNC. It is important to choose the right path for your academic goals.</p>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            <h3 class="text-lg font-bold text-slate-800 mb-3">AP Courses (Advanced Placement)</h3>
+                            <p class="text-slate-600 text-sm mb-4">Taught at LNC. College credit is awarded based entirely on the score you receive on the final AP Exam (usually a 3, 4, or 5 is required, depending on the university).</p>
+                            
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 mt-6">CCP Dual Enrollment</h3>
+                            <p class="text-slate-600 text-sm">Taught by CPCC instructors. You earn actual college transcript grades. Credit is guaranteed to transfer to participating universities if you pass the class with a 'C' or higher.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: TRANSFER COURSES (NEW)               -->
+                <!-- ========================================== -->
+                <section id="transfer-courses" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                            <div class="w-14 h-14 bg-blue-50 text-accent rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-blue-100">
+                                <i class="fa-solid fa-share-nodes"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Transferring Courses</h2>
+                                <p class="text-slate-500 font-medium mt-1">How to send your earned credits to your future 4-year university.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Sending AP Scores -->
+                            <div class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 hover:border-accent transition-colors">
+                                <div class="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center mb-4 text-accent text-xl">
+                                    <i class="fa-solid fa-a"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-800 mb-3">Sending AP Scores</h3>
+                                <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                                    If you have taken Advanced Placement (AP) exams, your high school transcript does not automatically grant you college credit at your chosen university. You must send official score reports.
+                                </p>
+                                <a href="https://apstudents.collegeboard.org/sending-scores" target="_blank" class="inline-flex items-center gap-2 text-accent font-bold hover:text-blue-700 transition-colors">
+                                    Send via CollegeBoard <i class="fa-solid fa-arrow-right text-sm"></i>
+                                </a>
+                            </div>
+
+                            <!-- Sending CPCC Transcript -->
+                            <div class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 hover:border-accent transition-colors">
+                                <div class="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center mb-4 text-accent text-xl">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-800 mb-3">Sending CPCC Transcripts</h3>
+                                <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                                    To receive credit for your dual enrollment courses, you must send your official CPCC transcript to your future university. You do this through the National Student Clearinghouse.
+                                </p>
+                                <a href="https://tsorder.studentclearinghouse.org/school/select" target="_blank" class="inline-flex items-center gap-2 text-accent font-bold hover:text-blue-700 transition-colors">
+                                    National Clearinghouse <i class="fa-solid fa-arrow-right text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: PROFICIENCY & MATH BENCHMARKS        -->
+                <!-- ========================================== -->
+                <section id="benchmarks" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                            <div class="w-14 h-14 bg-slate-800 text-white rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-slate-700">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Proficiency & Math</h2>
+                                <p class="text-slate-500 font-medium mt-1">Prerequisites and suggested course sequences.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-lncBlue text-white rounded-2xl p-8">
+                            <h3 class="text-xl font-bold mb-4 text-cpccGold">Math Sequence Example</h3>
+                            <p class="text-blue-100 text-sm mb-6">If you plan on taking advanced mathematics, you must meet the specific testing benchmarks or complete the prerequisite sequence.</p>
+                            
+                            <div class="bg-black/30 rounded-2xl p-6 border border-black/40 shadow-inner max-w-sm">
+                                <h4 class="font-black text-cpccGold text-xs mb-4 uppercase tracking-widest text-center">Suggested Sequence</h4>
+                                <ul class="text-sm space-y-3 font-medium">
+                                    <li class="flex items-center gap-3"><div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold border border-white/20">1</div> MAT-271 <span class="text-white/50 text-xs font-normal ml-auto">(Calculus I)</span></li>
+                                    <li class="flex justify-center text-white/30 my-1"><i class="fa-solid fa-arrow-down text-xs"></i></li>
+                                    <li class="flex items-center gap-3"><div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold border border-white/20">2</div> MAT-272 <span class="text-white/50 text-xs font-normal ml-auto">(Calculus II)</span></li>
+                                    <li class="flex justify-center text-white/30 my-1"><i class="fa-solid fa-arrow-down text-xs"></i></li>
+                                    <li class="flex items-center gap-3"><div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold border border-white/20">3</div> MAT-273 <span class="text-white/50 text-xs font-normal ml-auto">(Calculus III)</span></li>
+                                </ul>
+                                <div class="mt-5 pt-4 border-t border-white/10 text-[10px] text-white/60 text-center leading-relaxed font-medium">
+                                    *MAT-280 & MAT-285 can be taken concurrently as prerequisites are met.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: FINANCES                             -->
+                <!-- ========================================== -->
+                <section id="finances" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                            <div class="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-green-100">
+                                <i class="fa-solid fa-piggy-bank"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Finances & Fees</h2>
+                                <p class="text-slate-500 font-medium mt-1">Understanding costs associated with the CCP program.</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-green-50/50 p-6 rounded-2xl border border-green-100">
+                                <h3 class="text-lg font-bold text-green-800 mb-2">Tuition-Free Classes</h3>
+                                <p class="text-slate-600 text-sm">Under the Career and College Promise program, college tuition is completely waived for high school students.</p>
+                            </div>
+                            <div class="bg-red-50/50 p-6 rounded-2xl border border-red-100">
+                                <h3 class="text-lg font-bold text-red-800 mb-2">Student Fees & Textbooks</h3>
+                                <p class="text-slate-600 text-sm">Students are still responsible for paying required campus/student fees, purchasing textbooks, and access codes. These are not covered by LNC or CPCC.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: SCHEDULES                            -->
+                <!-- ========================================== -->
+                <section id="schedules" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                            <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-amber-100">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Schedule Examples</h2>
+                                <p class="text-slate-500 font-medium mt-1">How dual enrollment fits into your day.</p>
+                            </div>
+                        </div>
+                        <p class="text-slate-700 mb-6">Below is an example of how a student might balance LNC courses and CPCC courses. Time management is crucial.</p>
+                        
+                        <div class="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
+                            <table class="w-full text-left text-sm text-slate-600">
+                                <thead class="bg-slate-100 text-slate-700 uppercase font-bold text-xs">
+                                    <tr>
+                                        <th class="px-6 py-4 border-b">Block / Time</th>
+                                        <th class="px-6 py-4 border-b">Location</th>
+                                        <th class="px-6 py-4 border-b">Example Course</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-slate-100">
+                                        <td class="px-6 py-4 font-semibold">1st Block (Morning)</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-bold">LNC</span></td>
+                                        <td class="px-6 py-4">Honors English IV</td>
+                                    </tr>
+                                    <tr class="border-b border-slate-100">
+                                        <td class="px-6 py-4 font-semibold">2nd Block</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-bold">LNC</span></td>
+                                        <td class="px-6 py-4">Civics & Economics</td>
+                                    </tr>
+                                    <tr class="bg-slate-100/50">
+                                        <td class="px-6 py-4 font-semibold">Afternoon</td>
+                                        <td class="px-6 py-4"><span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-bold">CPCC Online</span></td>
+                                        <td class="px-6 py-4">PSY 150 (General Psychology)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================== -->
+                <!-- PAGE: HELP & IT                            -->
+                <!-- ========================================== -->
+                <section id="help" class="page-section">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                            <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-rose-100">
+                                <i class="fa-solid fa-circle-question"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Help & IT Support</h2>
+                                <p class="text-slate-500 font-medium mt-1">Who to contact when you need assistance.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl flex items-start gap-4">
+                                <i class="fa-solid fa-desktop text-2xl text-slate-400 mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">CPCC IT Help Desk</h4>
+                                    <p class="text-sm text-slate-600 mt-1">For issues with MyCollege, Blackboard, or CPCC email logins. LNC IT cannot reset CPCC passwords.</p>
+                                </div>
+                            </div>
+                            <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl flex items-start gap-4">
+                                <i class="fa-solid fa-user-tie text-2xl text-slate-400 mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">High School Counselor</h4>
+                                    <p class="text-sm text-slate-600 mt-1">For questions regarding LNC transcripts, pathway adjustments, and schedule changes.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Script for Navigation Tabs -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pageSections = document.querySelectorAll('.page-section');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const sidebar = document.querySelector('aside');
+
+            // Handle Mobile Menu Toggle
+            if(mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('hidden');
+                    sidebar.classList.toggle('absolute');
+                    sidebar.classList.toggle('inset-y-0');
+                    sidebar.classList.toggle('left-0');
+                });
+            }
+
+            // Handle Page Switching
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const targetId = link.getAttribute('data-target');
+                    if (!targetId) return; // Skip if it's an external link (like Academic Calendar)
+
+                    e.preventDefault();
+
+                    // Remove active states
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    pageSections.forEach(s => s.classList.remove('active'));
+
+                    // Add active states to clicked link and target section
+                    link.classList.add('active');
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                    }
+
+                    // On mobile, close sidebar after clicking a link
+                    if(window.innerWidth < 768 && sidebar.classList.contains('absolute')) {
+                        sidebar.classList.add('hidden');
+                        sidebar.classList.remove('absolute', 'inset-y-0', 'left-0');
+                    }
+                    
+                    // Scroll back to top of main area
+                    document.querySelector('main > .overflow-y-auto').scrollTop = 0;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
