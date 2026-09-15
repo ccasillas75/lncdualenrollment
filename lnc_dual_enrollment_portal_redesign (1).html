@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LNC Dual Enrollment Portal</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+  --ink:#0E1F4A; --ink-2:#172C60; --ink-3:#233A7A;
+  --paper:#EEF1F5; --surface:#FFFFFF; --rule:#D8DEE7;
+  --text:#1E2638; --muted:#566076;
+  /* Lake Norman Charter: royal blue + kelly green */
+  --royal:#1F4FD1; --kelly:#2DAA4A; --sky:#56A8EC; --silver:#9AA9C0;
+  --royal-ink:#1A3FA8; --kelly-ink:#1B7A33; --sky-ink:#1767A8; --silver-ink:#4E5A70;
+  --alert:#D6363C; --alert-ink:#B02329;
+  --line:var(--royal); --line-ink:var(--royal-ink);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:'Overpass',system-ui,sans-serif;color:var(--text);background:var(--paper);display:flex;overflow:hidden;font-size:17px;line-height:1.55}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--kelly);outline-offset:3px;border-radius:4px}
+strong{font-weight:700}
+
+/* line colour themes */
+[data-line="start"]{--line:var(--royal);--line-ink:var(--royal-ink)}
+[data-line="enroll"]{--line:var(--kelly);--line-ink:var(--kelly-ink)}
+[data-line="academics"]{--line:var(--sky);--line-ink:var(--sky-ink)}
+[data-line="logistics"]{--line:var(--silver);--line-ink:var(--silver-ink)}
+
+/* ============ SIDEBAR: route map ============ */
+aside{width:300px;flex-shrink:0;background:var(--ink);color:#fff;display:flex;flex-direction:column;height:100%;z-index:40}
+.brand{padding:28px 26px 22px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--ink-3)}
+.brand-mark{width:44px;height:44px;flex-shrink:0}
+.brand h2{margin:0;font-size:1.15rem;font-weight:900;line-height:1.1;letter-spacing:-.01em}
+.brand h2 span{display:block;font-weight:500;color:#AEB8D0;font-size:.9rem;margin-top:3px}
+
+.map{flex:1;overflow-y:auto;padding:22px 18px 40px}
+.map::-webkit-scrollbar{width:6px}.map::-webkit-scrollbar-thumb{background:var(--ink-3);border-radius:3px}
+.route{margin-bottom:22px}
+.route-name{display:flex;align-items:center;gap:10px;margin:0 0 6px 8px;font-size:.82rem;font-weight:700;color:#C9D1E4}
+.route-name::before{content:"";width:22px;height:8px;border-radius:4px;background:var(--line)}
+.route ul{list-style:none;margin:0;padding:0;position:relative}
+.route ul::before{content:"";position:absolute;left:18px;top:14px;bottom:14px;width:6px;border-radius:3px;background:var(--line);opacity:.9}
+.stop{display:flex;align-items:center;gap:14px;padding:9px 12px 9px 9px;border-radius:10px;text-decoration:none;color:#DCE2F0;font-size:.95rem;font-weight:500;position:relative;transition:background-color .15s}
+.stop::before{content:"";width:12px;height:12px;margin-left:6px;flex-shrink:0;border-radius:50%;background:var(--ink);border:3px solid #fff;position:relative;z-index:1;transition:transform .2s}
+.stop:hover{background:var(--ink-2);color:#fff}
+.stop.active{background:var(--ink-2);color:#fff;font-weight:700}
+.stop.active::before{background:var(--line);transform:scale(1.45);box-shadow:0 0 0 3px var(--ink-2)}
+.stop.external::before{border-radius:3px}
+.stop .fa-arrow-up-right-from-square{margin-left:auto;font-size:.65rem;opacity:.55}
+
+/* ============ MAIN ============ */
+main{flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden}
+.mobile-bar{display:none}
+.scroller{flex:1;overflow-y:auto;scroll-behavior:smooth}
+.page{max-width:980px;margin:0 auto;padding:56px 48px 96px}
+
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* station header */
+.station-head{margin-bottom:36px}
+.route-bar{display:flex;align-items:center;margin-bottom:22px}
+.route-bar i{width:20px;height:20px;border-radius:50%;background:#fff;border:5px solid var(--line);flex-shrink:0}
+.route-bar b{height:8px;width:120px;background:var(--line);border-radius:0 4px 4px 0;margin-left:-2px}
+.route-bar small{margin-left:14px;font-size:.88rem;font-weight:600;color:var(--line-ink)}
+.station-head h1{font-size:clamp(2.1rem,4.4vw,3.4rem);line-height:1.02;font-weight:900;letter-spacing:-.025em;margin:0 0 12px;color:var(--ink)}
+.station-head p{margin:0;font-size:1.15rem;color:var(--muted);max-width:60ch}
+
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:18px;padding:32px}
+.panel + .panel{margin-top:20px}
+h3{font-size:1.3rem;font-weight:800;margin:0 0 8px;color:var(--ink);letter-spacing:-.01em;line-height:1.2}
+p{margin:0 0 14px}
+.muted{color:var(--muted)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* ============ OVERVIEW HERO ============ */
+.hero{background:var(--ink);color:#fff;border-radius:24px;padding:48px 44px 40px;display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;overflow:hidden;margin-bottom:28px}
+.hero h1{font-size:clamp(2.4rem,5vw,4rem);line-height:.98;font-weight:900;letter-spacing:-.03em;margin:0 0 18px}
+.hero p{color:#C4CCDF;font-size:1.1rem;max-width:44ch;margin:0}
+.hero svg{width:100%;height:auto;display:block}
+.track{fill:none;stroke-width:12;stroke-linecap:round;stroke-dasharray:900;stroke-dashoffset:900;animation:draw 1.6s cubic-bezier(.6,.05,.3,1) forwards}
+.track.cpcc{animation-delay:.35s}
+.hero .station{opacity:0;animation:pop .35s ease-out forwards}
+.hero text{font-family:'Overpass',sans-serif;font-weight:800;font-size:18px;fill:#fff}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+
+.link-row{display:flex;align-items:flex-start;gap:18px;padding:22px 24px;border:1px solid var(--rule);border-left:8px solid var(--line);border-radius:14px;text-decoration:none;background:var(--surface);transition:border-color .15s,background-color .15s}
+.link-row:hover{background:#F7F9FC;border-color:var(--line)}
+.link-row .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--paper);color:var(--line-ink);font-size:1.15rem;flex-shrink:0}
+.link-row h4{margin:0 0 4px;font-size:1.12rem;font-weight:800;color:var(--ink);display:flex;gap:10px;align-items:baseline}
+.link-row h4 .fa-arrow-up-right-from-square{font-size:.7rem;color:var(--muted)}
+.link-row p{margin:0;color:var(--muted);font-size:.95rem}
+
+.quick{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.quick a{display:inline-flex;align-items:center;gap:10px;padding:10px 16px 8px 12px;border-radius:999px;background:var(--paper);text-decoration:none;font-weight:600;font-size:.95rem;border:1px solid var(--rule)}
+.quick a::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--line)}
+.quick a:hover{border-color:var(--line)}
+
+/* ============ UPDATES ============ */
+.notice{display:flex;gap:28px;align-items:center}
+.pulse-sign{width:96px;height:96px;border-radius:50%;background:var(--paper);display:grid;place-items:center;flex-shrink:0;position:relative;color:var(--royal-ink);font-size:2rem}
+.pulse-sign::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:3px solid var(--royal);opacity:.35;animation:ring 2.4s ease-out infinite}
+@keyframes ring{0%{transform:scale(.9);opacity:.5}100%{transform:scale(1.25);opacity:0}}
+.btn{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:#fff;text-decoration:none;font-weight:700;padding:14px 22px 12px;border-radius:12px;transition:background-color .15s}
+.btn:hover{background:var(--royal)}
+.btn i{font-size:.8rem;opacity:.8}
+
+/* ============ POLICY ============ */
+.sign{background:var(--alert);color:#fff;border-radius:18px;padding:26px 30px;display:flex;gap:22px;align-items:center;margin-bottom:20px}
+.sign i{font-size:2.4rem}
+.sign strong{display:block;font-size:1.4rem;font-weight:900;line-height:1.1}
+.sign span{opacity:.9}
+.lede{font-size:1.18rem;line-height:1.6;color:var(--text);max-width:62ch}
+.rules li{margin-bottom:14px;padding-left:22px;position:relative}
+.rules li::before{content:"";position:absolute;left:0;top:.55em;width:10px;height:10px;border-radius:50%;border:3px solid var(--line)}
+.rules{list-style:none;margin:14px 0 0;padding:0}
+.f-grade{display:inline-grid;place-items:center;min-width:1.9em;height:1.9em;padding-top:.15em;margin:0 3px;background:var(--alert);color:#fff;border-radius:6px;font-weight:900}
+.exception{border-left:8px solid var(--ink);background:#F7F9FC}
+
+/* ============ CHECKLISTS ============ */
+.progress{display:flex;align-items:center;gap:16px;margin-bottom:26px}
+.progress-track{flex:1;height:8px;background:var(--paper);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:var(--line);border-radius:4px;transition:width .35s ease}
+.progress output{font-weight:700;font-size:.95rem;color:var(--line-ink);white-space:nowrap}
+.stops{list-style:none;margin:0;padding:0;position:relative}
+.stops::before{content:"";position:absolute;left:17px;top:24px;bottom:24px;width:6px;background:var(--rule);border-radius:3px}
+.stops li{position:relative}
+.stops label{display:flex;gap:22px;padding:16px 14px 16px 4px;cursor:pointer;border-radius:12px}
+.stops label:hover{background:#F7F9FC}
+.stops input{appearance:none;-webkit-appearance:none;width:32px;height:32px;margin:0;flex-shrink:0;border-radius:50%;border:5px solid var(--line);background:#fff;cursor:pointer;position:relative;z-index:1;display:grid;place-items:center;transition:background-color .2s}
+.stops input::after{content:"";width:7px;height:12px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px);opacity:0}
+.stops input:checked{background:var(--line)}
+.stops input:checked::after{opacity:1}
+.stops .step{display:block;font-size:.85rem;font-weight:700;color:var(--line-ink)}
+.stops .title{display:block;font-size:1.15rem;font-weight:800;color:var(--ink);line-height:1.25;margin:1px 0 4px}
+.stops .desc{display:block;color:var(--muted);font-size:.97rem}
+.stops input:checked ~ span .title{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
+.stops input:checked ~ span .desc{opacity:.6}
+
+/* ============ PATHWAYS / CREDIT ============ */
+.path-card{border-top:8px solid var(--line)}
+.path-card ul{margin:10px 0 0;padding:0;list-style:none}
+.path-card li{padding:9px 0;border-top:1px solid var(--rule);font-weight:600}
+.compare{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule);border-radius:18px;overflow:hidden;background:var(--surface)}
+.compare > div{padding:30px}
+.compare > div + div{border-left:1px solid var(--rule);background:#F7F9FC}
+.compare h3{display:flex;align-items:center;gap:10px}
+.compare .tag{font-size:.8rem;font-weight:700;padding:3px 10px 1px;border-radius:999px;background:var(--paper);color:var(--muted)}
+.text-link{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--line-ink);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px}
+.text-link:hover{color:var(--ink)}
+
+/* ============ MATH ============ */
+.math{background:var(--ink);color:#fff;border-radius:20px;padding:36px}
+.math h3{color:#fff}
+.math p{color:#C4CCDF;max-width:60ch}
+.seq{list-style:none;display:flex;margin:34px 0 10px;padding:0;position:relative}
+.seq::before{content:"";position:absolute;left:12%;right:12%;top:15px;height:8px;border-radius:4px;background:var(--kelly)}
+.seq li{flex:1;text-align:center;position:relative}
+.seq li::before{content:"";display:block;width:24px;height:24px;margin:4px auto 14px;border-radius:50%;background:#fff;border:5px solid var(--kelly)}
+.seq b{display:block;font-size:1.35rem;font-weight:900}
+.seq span{color:#AEB8D0;font-size:.92rem}
+.math .fine{margin:22px 0 0;padding-top:16px;border-top:1px solid var(--ink-3);font-size:.9rem;color:#AEB8D0}
+
+/* ============ FINANCES ============ */
+.fee{border-top:8px solid var(--line)}
+.fee .amount{font-size:2.4rem;font-weight:900;line-height:1;margin-bottom:12px;color:var(--line-ink)}
+
+/* ============ SCHEDULE ============ */
+.day{list-style:none;margin:0;padding:0}
+.day li{display:grid;grid-template-columns:190px 1fr auto;gap:18px;align-items:center;padding:18px 0;border-top:1px solid var(--rule)}
+.day li:first-child{border-top:0}
+.day .when{font-weight:700;color:var(--muted);font-size:.95rem}
+.day .course{font-weight:800;font-size:1.1rem;color:var(--ink)}
+.pill{font-size:.82rem;font-weight:700;padding:4px 12px 2px;border-radius:999px;white-space:nowrap}
+.pill.lnc{background:#DDF3E2;color:var(--kelly-ink)}
+.pill.cpcc{background:#E0ECFD;color:var(--royal-ink)}
+.day li.cpcc-row{background:linear-gradient(90deg,#EAF2FE,transparent);margin:0 -32px;padding-left:32px;padding-right:32px}
+
+/* ============ HELP ============ */
+.contact{display:flex;gap:20px;align-items:flex-start}
+.contact i{font-size:1.5rem;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:var(--paper);color:var(--ink);flex-shrink:0}
+.contact h4{margin:2px 0 4px;font-size:1.12rem;font-weight:800;color:var(--ink)}
+.contact p{margin:0;color:var(--muted)}
+
+/* ============ RESPONSIVE ============ */
+.scrim{display:none}
+@media (max-width:900px){
+  .page{padding:36px 22px 80px}
+  .hero{grid-template-columns:1fr;padding:36px 28px}
+  .grid-2,.compare{grid-template-columns:1fr}
+  .compare > div + div{border-left:0;border-top:1px solid var(--rule)}
+  .notice{flex-direction:column;align-items:flex-start}
+  .day li{grid-template-columns:1fr auto}
+  .day .when{grid-column:1/-1}
+}
+@media (max-width:767px){
+  body{font-size:16px}
+  aside{position:fixed;inset:0 auto 0 0;transform:translateX(-100%);transition:transform .25s ease;box-shadow:12px 0 40px rgba(14,31,74,.35)}
+  aside.open{transform:none}
+  .scrim.show{display:block;position:fixed;inset:0;background:rgba(14,31,74,.45);z-index:30}
+  .mobile-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--ink);color:#fff}
+  .mobile-bar .brand-sm{display:flex;align-items:center;gap:10px;font-weight:900}
+  .mobile-bar button{background:none;border:0;color:#fff;font-size:1.35rem;padding:6px 8px;cursor:pointer}
+  .panel{padding:24px}
+  .seq b{font-size:1.1rem}
+  .day li.cpcc-row{margin:0 -24px;padding-left:24px;padding-right:24px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .track{stroke-dashoffset:0}.hero .station{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<aside id="sidebar" aria-label="Portal navigation">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true">
+      <path d="M8 14 H36" stroke="#2DAA4A" stroke-width="6" stroke-linecap="round"/>
+      <path d="M8 32 C18 32 18 22 28 22 H36" stroke="#56A8EC" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <circle cx="30" cy="14" r="5" fill="#fff" stroke="#0E1F4A" stroke-width="2"/>
+      <circle cx="30" cy="22" r="5" fill="#fff" stroke="#0E1F4A" stroke-width="2"/>
+    </svg>
+    <h2>LNC Dual Enrollment<span>with Central Piedmont</span></h2>
+  </div>
+
+  <nav class="map">
+    <div class="route" data-line="start">
+      <p class="route-name">Start here</p>
+      <ul>
+        <li><a href="#overview" class="stop nav-link active" data-target="overview" aria-current="page">Overview</a></li>
+        <li><a href="#cpcc-updates" class="stop nav-link" data-target="cpcc-updates">CPCC Updates</a></li>
+        <li><a href="#parents" class="stop nav-link" data-target="parents">Parent Information</a></li>
+        <li><a href="https://catalog.cpcc.edu/about-central-piedmont/academic-calendar/" target="_blank" rel="noopener noreferrer" class="stop external">Academic Calendar <i class="fa-solid fa-arrow-up-right-from-square" aria-label="opens in new tab"></i></a></li>
+      </ul>
+    </div>
+
+    <div class="route" data-line="enroll">
+      <p class="route-name">Enrollment</p>
+      <ul>
+        <li><a href="#policy" class="stop nav-link" data-target="policy">LNC Policy</a></li>
+        <li><a href="#checklist-new" class="stop nav-link" data-target="checklist-new">New Student Checklist</a></li>
+        <li><a href="#checklist-returning" class="stop nav-link" data-target="checklist-returning">Returning Student</a></li>
+      </ul>
+    </div>
+
+    <div class="route" data-line="academics">
+      <p class="route-name">Academics</p>
+      <ul>
+        <li><a href="#pathways" class="stop nav-link" data-target="pathways">Pathways</a></li>
+        <li><a href="#college-credit" class="stop nav-link" data-target="college-credit">College Credit Options</a></li>
+        <li><a href="#transfer-courses" class="stop nav-link" data-target="transfer-courses">Transfer Courses</a></li>
+        <li><a href="#benchmarks" class="stop nav-link" data-target="benchmarks">Proficiency &amp; Math</a></li>
+      </ul>
+    </div>
+
+    <div class="route" data-line="logistics">
+      <p class="route-name">Logistics &amp; help</p>
+      <ul>
+        <li><a href="#finances" class="stop nav-link" data-target="finances">Finances</a></li>
+        <li><a href="#schedules" class="stop nav-link" data-target="schedules">Schedule Examples</a></li>
+        <li><a href="#help" class="stop nav-link" data-target="help">Help &amp; IT</a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<div class="scrim" id="scrim"></div>
+
+<!-- ================= MAIN ================= -->
+<main>
+  <div class="mobile-bar">
+    <span class="brand-sm">LNC Dual Enrollment</span>
+    <button id="mobile-menu-btn" aria-controls="sidebar" aria-expanded="false" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+  </div>
+
+  <div class="scroller" id="scroller">
+    <div class="page">
+
+      <!-- OVERVIEW -->
+      <section id="overview" class="page-section active" data-line="start">
+        <div class="hero">
+          <div>
+            <h1>LNC Dual Enrollment Portal</h1>
+            <p>Welcome to your central hub for Central Piedmont Community College (CPCC) Career &amp; College Promise (CCP) information, guidelines, and enrollment checklists.</p>
+          </div>
+          <svg viewBox="0 0 520 250" role="img" aria-label="Two tracks, LNC and CPCC, running side by side">
+            <path class="track" d="M60 80 H490" stroke="#2DAA4A"/>
+            <path class="track cpcc" d="M60 200 H150 C220 200 220 130 290 130 H490" stroke="#56A8EC"/>
+            <text x="0" y="86">LNC</text>
+            <text x="0" y="206">CPCC</text>
+            <g class="station" style="animation-delay:1.2s;transform-origin:150px 80px"><circle cx="150" cy="80" r="11" fill="#fff" stroke="#0E1F4A" stroke-width="4"/></g>
+            <g class="station" style="animation-delay:1.45s;transform-origin:340px 105px"><rect x="326" y="66" width="28" height="78" rx="14" fill="#fff" stroke="#0E1F4A" stroke-width="4"/></g>
+            <g class="station" style="animation-delay:1.7s;transform-origin:450px 105px"><rect x="436" y="66" width="28" height="78" rx="14" fill="#fff" stroke="#0E1F4A" stroke-width="4"/></g>
+          </svg>
+        </div>
+
+        <div class="panel">
+          <h3>Program Booklets &amp; Guides</h3>
+          <p class="muted">Access official guides and application documentation below.</p>
+          <div class="grid-2" style="margin-top:20px">
+            <a href="https://canva.link/dudqahmvrqnr91w" target="_blank" rel="noopener noreferrer" class="link-row">
+              <span class="ico"><i class="fa-solid fa-file-pdf"></i></span>
+              <span><h4>Application Process Guide <i class="fa-solid fa-arrow-up-right-from-square"></i></h4>
+              <p>Step-by-step instructions for completing your CPCC dual enrollment application.</p></span>
+            </a>
+            <a href="https://canva.link/bt6u3fjlx95cad3" target="_blank" rel="noopener noreferrer" class="link-row">
+              <span class="ico"><i class="fa-solid fa-book-open"></i></span>
+              <span><h4>CCP Dual Informational Booklet <i class="fa-solid fa-arrow-up-right-from-square"></i></h4>
+              <p>Comprehensive overview of pathways, policies, and requirements for high school students.</p></span>
+            </a>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Jump to</h3>
+          <div class="quick">
+            <a href="#checklist-new" data-target="checklist-new" data-line="enroll">New Student Checklist</a>
+            <a href="#checklist-returning" data-target="checklist-returning" data-line="enroll">Returning Student</a>
+            <a href="#policy" data-target="policy" data-line="enroll">LNC Policy</a>
+            <a href="#cpcc-updates" data-target="cpcc-updates" data-line="start">CPCC Updates</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- CPCC UPDATES -->
+      <section id="cpcc-updates" class="page-section" data-line="start">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Start here</small></div>
+          <h1>CPCC Updates</h1>
+          <p>Latest announcements and deadlines.</p>
+        </header>
+        <div class="panel notice">
+          <div class="pulse-sign" aria-hidden="true"><i class="fa-solid fa-bullhorn"></i></div>
+          <div>
+            <h3>Live CPCC Updates Document</h3>
+            <p class="muted" style="max-width:56ch">Please refer to this running link for continual updates. This document is updated regularly with important information for everyone to see.</p>
+            <a href="https://docs.google.com/document/d/1Kuqu8YS0dMPVVE_n6wtzOF9F7yqLoUNaSh1mJvoYR7I/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn">View Continual Updates <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- PARENTS -->
+      <section id="parents" class="page-section" data-line="start">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Start here</small></div>
+          <h1>Parent Information</h1>
+          <p>Important details for parents of dual enrollment students.</p>
+        </header>
+        <div class="panel">
+          <h3>FERPA &amp; Student Privacy</h3>
+          <p class="lede">Because your student is enrolling in college courses, college privacy laws (FERPA) apply. College instructors will communicate <strong>only</strong> with the student, not the parents.</p>
+          <p class="muted" style="margin:0">We encourage parents to support their students, but students must take ownership of their communication, scheduling, and coursework.</p>
+        </div>
+      </section>
+
+      <!-- POLICY -->
+      <section id="policy" class="page-section" data-line="enroll">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Enrollment</small></div>
+          <h1>LNC Dual Enrollment Policy</h1>
+        </header>
+        <div class="sign" role="note">
+          <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+          <div><strong>Extremely important</strong><span>Read this before registering or dropping any course.</span></div>
+        </div>
+        <div class="panel">
+          <p class="lede" style="margin:0">This policy ensures that students understand the commitment required when enrolling in college-level coursework. It maintains the integrity of high school and college transcripts, prevents gaps in course schedules, and reinforces the expectation that all students are capable of meeting the academic challenges presented.</p>
+        </div>
+        <div class="grid-2" style="margin-top:20px">
+          <div class="panel">
+            <h3>Transcripts &amp; Dropped Courses</h3>
+            <ul class="rules">
+              <li>Any CPCC course a student registers for will be placed on <strong>both</strong> the LNC and college transcripts.</li>
+              <li>Any student who withdraws from a CPCC course or is dropped for any reason <strong>without replacing it with a new course in the same semester</strong> will receive an <span class="f-grade">F</span> on their high school transcript.</li>
+              <li>Courses may not be dropped due to difficulty, as all courses offered are college-level and inherently rigorous. Students are expected to remain enrolled for the duration.</li>
+            </ul>
+          </div>
+          <div>
+            <div class="panel">
+              <h3>Course Load Requirements</h3>
+              <p class="muted" style="margin:0">Students must register for at least half or more of their total CPCC courses in the first semester and may complete the remaining courses in the second semester.</p>
+            </div>
+            <div class="panel">
+              <h3>Check-Ins &amp; Drop Protocol</h3>
+              <ul class="rules">
+                <li>Require quarterly check-ins and progress updates to monitor progress.</li>
+                <li><strong>Must</strong> fill out a change request form and meet with HS Counselor <strong>before</strong> dropping any courses.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="panel exception" style="margin-top:20px">
+          <h3>Exceptions</h3>
+          <p style="margin:0;max-width:70ch">A medical or compassionate withdrawal approved by CPCC is the only exception. You must notify your counselor before the class ends. The appeal must be completed and approved before the end of the grading period, or your "W" will remain an "F" on LNC’s transcript. Once documentation is provided from CPCC, your LNC transcript will be updated.</p>
+        </div>
+      </section>
+
+      <!-- NEW STUDENT CHECKLIST -->
+      <section id="checklist-new" class="page-section" data-line="enroll">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Enrollment</small></div>
+          <h1>New Student Checklist</h1>
+          <p>Follow these steps carefully to ensure a smooth enrollment process.</p>
+        </header>
+        <div class="panel checklist">
+          <div class="progress"><div class="progress-track"><div class="progress-fill"></div></div><output aria-live="polite">0 of 5 done</output></div>
+          <ol class="stops">
+            <li><label><input type="checkbox"><span><span class="step">Step 1</span><span class="title">Apply to CPCC</span><span class="desc">Submit your official application for the Career and College Promise (CCP) program via CFNC.</span></span></label></li>
+            <li><label><input type="checkbox"><span><span class="step">Step 2</span><span class="title">Set Up Your CPCC Account</span><span class="desc">Once accepted, activate your student login, email, and set up your multi-factor authentication.</span></span></label></li>
+            <li><label><input type="checkbox"><span><span class="step">Step 3</span><span class="title">Meet with High School Counselor</span><span class="desc">Discuss your pathway, select appropriate courses, and ensure they align with your high school graduation requirements.</span></span></label></li>
+            <li><label><input type="checkbox"><span><span class="step">Step 4</span><span class="title">Register for Classes</span><span class="desc">Use MyCollege to enroll in the courses approved by your counselor during the registration window.</span></span></label></li>
+            <li><label><input type="checkbox"><span><span class="step">Step 5</span><span class="title">Pay Your Bill</span><span class="desc">Ensure your student fees and material costs are paid according to CPCC's payment schedule (Tuition is waived, but fees apply).</span></span></label></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- RETURNING STUDENT CHECKLIST -->
+      <section id="checklist-returning" class="page-section" data-line="enroll">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Enrollment</small></div>
+          <h1>Returning Student Checklist</h1>
+          <p>Steps required for students continuing their dual enrollment journey.</p>
+        </header>
+        <div class="panel checklist">
+          <div class="progress"><div class="progress-track"><div class="progress-fill"></div></div><output aria-live="polite">0 of 3 done</output></div>
+          <ol class="stops">
+            <li><label><input type="checkbox"><span><span class="step">Step 1</span><span class="title">Verify Account Standing</span><span class="desc">Check MyCollege to ensure you have no outstanding balances or holds on your account.</span></span></label></li>
+            <li><label><input type="checkbox"><span><span class="step">Step 2</span><span class="title">Submit Pathway Continuation/Change Form</span><span class="desc">Confirm your current pathway or submit a form if you intend to switch pathways.</span></span></label></li>
+            <li><label><input type="checkbox"><span><span class="step">Step 3</span><span class="title">Register &amp; Pay Fees</span><span class="desc">Register for next semester's courses and pay the required fees by the deadline.</span></span></label></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- PATHWAYS -->
+      <section id="pathways" class="page-section" data-line="academics">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Academics</small></div>
+          <h1>Academic Pathways</h1>
+          <p>Choose between College Transfer and Career/Technical pathways.</p>
+        </header>
+        <div class="grid-2">
+          <div class="panel path-card" style="--line:var(--royal);--line-ink:var(--royal-ink)">
+            <h3>College Transfer Pathways (CTP)</h3>
+            <p class="muted">Designed for students planning to attend a 4-year university after high school. These credits are designed to transfer to UNC System schools and many private colleges.</p>
+            <ul><li>Associate in Arts</li><li>Associate in Science</li><li>Associate in Engineering</li></ul>
+          </div>
+          <div class="panel path-card" style="--line:var(--kelly);--line-ink:var(--kelly-ink)">
+            <h3>Career &amp; Technical Education (CTE)</h3>
+            <p class="muted">Designed for students looking to gain job-ready skills, certificates, or diplomas in a specific trade or technical field before graduating high school.</p>
+            <ul><li>Information Technology</li><li>Business Administration</li><li>Culinary Arts</li></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLLEGE CREDIT -->
+      <section id="college-credit" class="page-section" data-line="academics">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Academics</small></div>
+          <h1>College Credit Options</h1>
+          <p>Understanding AP vs. CCP Dual Enrollment.</p>
+        </header>
+        <p class="lede" style="margin-bottom:22px">Students have multiple ways to earn college credit while at LNC. It is important to choose the right path for your academic goals.</p>
+        <div class="compare">
+          <div>
+            <h3>AP Courses <span class="tag">Advanced Placement</span></h3>
+            <p class="muted" style="margin:0">Taught at LNC. College credit is awarded based entirely on the score you receive on the final AP Exam (usually a 3, 4, or 5 is required, depending on the university).</p>
+          </div>
+          <div>
+            <h3>CCP Dual Enrollment</h3>
+            <p class="muted" style="margin:0">Taught by CPCC instructors. You earn actual college transcript grades. Credit is guaranteed to transfer to participating universities if you pass the class with a 'C' or higher.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRANSFER COURSES -->
+      <section id="transfer-courses" class="page-section" data-line="academics">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Academics</small></div>
+          <h1>Transferring Courses</h1>
+          <p>How to send your earned credits to your future 4-year university.</p>
+        </header>
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Sending AP Scores</h3>
+            <p class="muted">If you have taken Advanced Placement (AP) exams, your high school transcript does not automatically grant you college credit at your chosen university. You must send official score reports directly through your College Board account.</p>
+            <a href="https://apstudents.collegeboard.org/sending-scores" target="_blank" rel="noopener noreferrer" class="text-link">Send via CollegeBoard <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.7rem"></i></a>
+          </div>
+          <div class="panel">
+            <h3>Sending CPCC Transcripts</h3>
+            <p class="muted">To receive credit for your dual enrollment courses, you must send your official CPCC transcript to your future university. You do this through the National Student Clearinghouse website.</p>
+            <a href="https://tsorder.studentclearinghouse.org/school/select" target="_blank" rel="noopener noreferrer" class="text-link">National Clearinghouse <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.7rem"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- MATH -->
+      <section id="benchmarks" class="page-section" data-line="academics">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Academics</small></div>
+          <h1>Proficiency &amp; Math</h1>
+          <p>Prerequisites and suggested course sequences.</p>
+        </header>
+        <div class="math">
+          <h3>Math Sequence Example</h3>
+          <p>If you plan on taking advanced mathematics, you must meet the specific testing benchmarks or complete the prerequisite sequence.</p>
+          <ol class="seq" aria-label="Suggested sequence">
+            <li><b>MAT-271</b><span>Calculus I</span></li>
+            <li><b>MAT-272</b><span>Calculus II</span></li>
+            <li><b>MAT-273</b><span>Calculus III</span></li>
+          </ol>
+          <p class="fine">*MAT-280 &amp; MAT-285 can be taken concurrently as prerequisites are met.</p>
+        </div>
+      </section>
+
+      <!-- FINANCES -->
+      <section id="finances" class="page-section" data-line="logistics">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Logistics &amp; help</small></div>
+          <h1>Finances &amp; Fees</h1>
+          <p>Understanding costs associated with the CCP program.</p>
+        </header>
+        <div class="grid-2">
+          <div class="panel fee" style="--line:var(--kelly);--line-ink:var(--kelly-ink)">
+            <div class="amount">$0</div>
+            <h3>Tuition-Free Classes</h3>
+            <p class="muted" style="margin:0">Under the Career and College Promise program, college tuition is completely waived for high school students.</p>
+          </div>
+          <div class="panel fee" style="--line:var(--royal);--line-ink:var(--royal-ink)">
+            <div class="amount">You pay</div>
+            <h3>Student Fees &amp; Textbooks</h3>
+            <p class="muted" style="margin:0">Students are still responsible for paying required campus/student fees, purchasing textbooks, and access codes. These are not covered by LNC or CPCC.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCHEDULES -->
+      <section id="schedules" class="page-section" data-line="logistics">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Logistics &amp; help</small></div>
+          <h1>Schedule Examples</h1>
+          <p>How dual enrollment fits into your day.</p>
+        </header>
+        <p class="lede" style="margin-bottom:22px">Below is an example of how a student might balance LNC courses and CPCC courses. Time management is crucial.</p>
+        <div class="panel">
+          <ul class="day">
+            <li><span class="when">1st Block (Morning)</span><span class="course">Honors English IV</span><span class="pill lnc">LNC</span></li>
+            <li><span class="when">2nd Block</span><span class="course">Civics &amp; Economics</span><span class="pill lnc">LNC</span></li>
+            <li class="cpcc-row"><span class="when">Afternoon</span><span class="course">PSY 150 (General Psychology)</span><span class="pill cpcc">CPCC Online</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- HELP -->
+      <section id="help" class="page-section" data-line="logistics">
+        <header class="station-head">
+          <div class="route-bar"><i></i><b></b><small>Logistics &amp; help</small></div>
+          <h1>Help &amp; IT Support</h1>
+          <p>Who to contact when you need assistance.</p>
+        </header>
+        <div class="panel contact">
+          <i class="fa-solid fa-desktop" aria-hidden="true"></i>
+          <div><h4>CPCC IT Help Desk</h4><p>For issues with MyCollege, Blackboard, or CPCC email logins. LNC IT cannot reset CPCC passwords.</p></div>
+        </div>
+        <div class="panel contact">
+          <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+          <div><h4>High School Counselor</h4><p>For questions regarding LNC transcripts, pathway adjustments, and schedule changes.</p></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('sidebar');
+  const scrim = document.getElementById('scrim');
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const scroller = document.getElementById('scroller');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const sections = document.querySelectorAll('.page-section');
+
+  const setMenu = open => {
+    sidebar.classList.toggle('open', open);
+    scrim.classList.toggle('show', open);
+    menuBtn.setAttribute('aria-expanded', open);
+  };
+  menuBtn.addEventListener('click', () => setMenu(!sidebar.classList.contains('open')));
+  scrim.addEventListener('click', () => setMenu(false));
+
+  const show = id => {
+    const target = document.getElementById(id);
+    if (!target || !target.classList.contains('page-section')) return;
+    sections.forEach(s => s.classList.toggle('active', s === target));
+    navLinks.forEach(l => {
+      const on = l.dataset.target === id;
+      l.classList.toggle('active', on);
+      on ? l.setAttribute('aria-current', 'page') : l.removeAttribute('aria-current');
+    });
+    scroller.scrollTop = 0;
+    setMenu(false);
+  };
+
+  // Any internal link with data-target switches tabs (external links are untouched)
+  document.querySelectorAll('[data-target]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      show(link.dataset.target);
+      history.replaceState(null, '', '#' + link.dataset.target);
+    });
+  });
+
+  // Open the right tab if the page is loaded with a #hash
+  if (location.hash) show(location.hash.slice(1));
+
+  // Checklist progress
+  document.querySelectorAll('.checklist').forEach(list => {
+    const boxes = list.querySelectorAll('input[type="checkbox"]');
+    const fill = list.querySelector('.progress-fill');
+    const out = list.querySelector('output');
+    const update = () => {
+      const done = [...boxes].filter(b => b.checked).length;
+      fill.style.width = (done / boxes.length * 100) + '%';
+      out.textContent = done === boxes.length ? 'All steps done' : `${done} of ${boxes.length} done`;
+    };
+    boxes.forEach(b => b.addEventListener('change', update));
+  });
+});
+</script>
+</body>
+</html>
